@@ -1,14 +1,22 @@
 #include "TMath.h"
 #include "TF1.h"
 #include <iostream>
+#include <gsl/gsl_integration.h>
+
+const double esp=1e-7;
+
+
+
 
 class cvlPoisson{
 private:
   double s_rate; // signal rate.
   double bkg_mean; //  mean_bkg rate.
   double bkg_sigma; // Gaussian uncertainty of bkg.
-  static Double_t fcvlPoisson(Double_t *bkg, Double_t *para);
+  static double fcvlPoisson(double bkg, void *para);
+  // gsl_integration_workspace * w;
   //double muRoughScan();
+  double result, error;
 
 public:
   cvlPoisson(double fsrate, double fbkg_mean, double fbkg_sigma);

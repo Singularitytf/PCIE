@@ -1,3 +1,4 @@
+#pragma once
 #include "cvlPoisson.hh"
 #include "Poisson.hh"
 #include <algorithm>
@@ -22,7 +23,7 @@ struct roughMu{
 
 class Belt{
 private:
-  Poisson *PoisObj = NULL;// = NULL;
+  cvlPoisson *PoisObj = NULL;// = NULL;
   double cfdent_level;
   double mu_scan_min;
   double mu_scan_max;
@@ -35,11 +36,10 @@ private:
   static bool n0SortRule(constructData &a, constructData &b);
 
   constructData fillStructure(int &fn0);
-  roughMu roughMuScan(int n0); // Move to Private!!
 
 
 public:
-  Belt(Poisson *fPoisObj, double fcfdent_level,
+  Belt(cvlPoisson *fPoisObj, double fcfdent_level,
        double fmu_scan_min, double fmu_scan_max,
        double fmu_scan_esp=0.05);
   ~Belt();
@@ -47,5 +47,4 @@ public:
   void printConstruction(double &mu);
   std::vector<n0Limit> constructBelt();
   void outPutBelt(const std::string filename = "beltPlot.txt");
-  roughMu findMuInterval(int n0);
 };

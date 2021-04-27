@@ -2,7 +2,7 @@
 
 //....................................................................
 
-Belt::Belt(Poisson *fPoisObj, double fcfdent_level,
+Belt::Belt(cvlPoisson *fPoisObj, double fcfdent_level,
            double fmu_scan_min, double fmu_scan_max,
            double fmu_scan_esp)
   : mu_scan_min(fmu_scan_min),
@@ -38,9 +38,10 @@ constructData Belt::fillStructure(int &fn0){
   constructData fstrData;
   fstrData.n0 = fn0;
   fstrData.prob = PoisObj->pmf(fn0);
-  fstrData.prob_best = Poisson(PoisObj->findBestMu(fn0),
-                               PoisObj->getBkgMean()).pmf(fn0);
-  std::cout << PoisObj->findBestMu(fn0) << std::endl;
+  fstrData.prob_best = cvlPoisson(PoisObj->findBestMu(fn0),
+                               PoisObj->getBkgMean(),
+                               PoisObj->getBkgSigma()).pmf(fn0);
+  // std::cout << PoisObj->findBestMu(fn0) << std::endl;
   fstrData.rate = fstrData.prob/fstrData.prob_best;
   return fstrData;
 }
@@ -141,81 +142,6 @@ void Belt::outPutBelt(const std::string filename){
 
 //....................................................................
 
-roughMu Belt::roughMuScan(int n0){
-  double bestMu = PoisObj->findBestMu(n0);
-  double upper_start_p, lower_start_p;
-  double esp = mu_scan_esp*10.;
-  int ntmp;
-  roughMu scanRst;
-
-  //Init start point.
-  upper_start_p = bestMu + TMath::Sqrt(bestMu);
-  lower_start_p = (bestMu - TMath::Sqrt(bestMu))<=0?
-    0:(bestMu - TMath::Sqrt(bestMu));
-
-  for (double i=lower_start_p; i>=mu_scan_min; i-=esp){
-    ntmp = findHInterval(i).upper;
-    if (ntmp == n0-1){
-      scanRst.lower = i;
-      break;
-    }
-  }
-
-  for (double i=upper_start_p; i<=mu_scan_max; i+=esp){
-    ntmp = findHInterval(i).lower;
-    //printf("%d\n", ntmp);
-    if (ntmp == n0+1){
-      scanRst.upper = i;
-      break;
-    }
-  }
-
-  //std::cout << lower_start_p << "\t" << upper_start_p << std::endl;
-  return scanRst;
-
-}
-
-//....................................................................
-
-roughMu Belt::findMuInterval(int fn0){
-
-  int ntmp;
-  // Init scan interval;
-  roughMu roughmu = roughMuScan(fn0);
-  roughMu exacMu;
-  double low_scan_itv[2], up_scan_itv[2];
-  double mu_tmp;
-  low_scan_itv[0] = ((roughmu.lower-1)>0)?(roughmu.lower-1):0;
-  low_scan_itv[1] = roughmu.lower+1;
-  // printf("%f\n", roughmu.upper);
-  up_scan_itv[0] = ((roughmu.upper-20*mu_scan_esp)>0)?(roughmu.upper-20*mu_scan_esp):0;
-  up_scan_itv[1] = roughmu.upper+1.2;
-  uint l_iter = (uint) (low_scan_itv[1]-low_scan_itv[0])/mu_scan_esp;
-  uint u_iter = (uint) (up_scan_itv[1]-up_scan_itv[0])/mu_scan_esp;
-  // scan upper limit
-
-  for(int i=0; i<=u_iter; i++){
-    mu_tmp = up_scan_itv[0]+i*mu_scan_esp;
-    ntmp = findHInterval(mu_tmp).lower;
-    if (ntmp == fn0) {
-      exacMu.upper = mu_tmp;
-      // printf("%.4f\t%d\n", exacMu.upper, ntmp);
-    }
-    
-  }
-  // printf("lo_lim: %.4f\n",low_scan_itv[0]);
-  //scan lower limit
-  for(int i=0; i<=l_iter;i++){
-    mu_tmp = low_scan_itv[1]-i*mu_scan_esp;
-    ntmp = findHInterval(mu_tmp).upper;
-    // printf("%.4f\t%d\n", i, ntmp);
-    if (ntmp == fn0){
-       exacMu.lower = mu_tmp;
-      //  printf("%.4f\t%d\n", exacMu.lower, ntmp);
-    }
-  }
-  return exacMu;
-}
 
 //....................................................................
 /*

@@ -4,7 +4,8 @@
 
 Interval::Interval(cvlPoisson *fPoisObj, double fcl,
            double fmuULimit, double fmu_esp)
-  : cfdent_level(fcl)
+  : cfdent_level(fcl),
+    esp(fmu_esp)
 {
   PoisObj = fPoisObj;
   belt = new Belt(PoisObj, fcl, 0., fmuULimit, 30);
@@ -12,7 +13,7 @@ Interval::Interval(cvlPoisson *fPoisObj, double fcl,
 
 Interval::~Interval()
 {
-  delete PoisObj;
+  // delete PoisObj;
   delete belt;
 }
 
@@ -43,8 +44,9 @@ roughMu Interval::roughMuScan(int n0){
   for (double i=upper_start_p; i<=upper_start_p+10; i+=fesp){
     // printf("upper scan mu = %f", i);
     ntmp = belt->findHInterval(i).lower;
+    double bkg = PoisObj->getBkgMean();
     //printf("%d\n", ntmp);
-    // std::cout << i << "\t up" << ntmp << std::endl;
+    // std::cout << i << "\t" << bkg <<"\tup\t" << ntmp << std::endl;
     if (ntmp == n0+1){
       scanRst.upper = i;
       break;
@@ -63,7 +65,7 @@ roughMu Interval::findMuInterval(int fn0){
   int ntmp;
   // Init scan interval;
   roughMu roughmu = roughMuScan(fn0);
-  // roughMu exacMu;
+  roughMu exacMu;
   double low_region_1, low_region_2, up_region_1, up_region_2;
   double mu_tmp;
   low_region_1 = roughmu.lower+0.5;
@@ -74,12 +76,16 @@ roughMu Interval::findMuInterval(int fn0){
   uint u_iter = (uint) (up_region_2-up_region_1)/esp;
   // scan upper limit
 
+  // printf("low scan region: %f\t%f\t\n", low_region_1, low_region_2);
+  // printf("up  scan region: %f\t%f\t\n", up_region_1, up_region_2);
+  // printf("uiter: %f\n", esp);
   for(int i=0; i<=u_iter; i++){
     mu_tmp = up_region_1+i*esp;
     ntmp = belt->findHInterval(mu_tmp).lower;
+    // printf("fine upper scan, mu:%f, n0:%d\n", mu_tmp, ntmp);
     if (ntmp == fn0) {
-      roughmu.upper = mu_tmp;
-      // printf("%.4f\t%d\n", exacMu.upper, ntmp);
+      exacMu.upper = mu_tmp;
+      // printf("update upper limit: %.4f\tn0=%d\n", exacMu.upper, ntmp);
     }
     
   }
@@ -90,11 +96,11 @@ roughMu Interval::findMuInterval(int fn0){
     ntmp = belt->findHInterval(mu_tmp).upper;
     // printf("%.4f\t%d\n", i, ntmp);
     if (ntmp == fn0){
-       roughmu.lower = mu_tmp;
+       exacMu.lower = mu_tmp;
       //  printf("%.4f\t%d\n", exacMu.lower, ntmp);
     }
   }
-  return roughmu;
+  return exacMu;
 }
 
 
@@ -137,32 +143,3 @@ double Interval::dipModify(int n0){
 
 //....................................................................
 
-int main(){
-  // double bkg;
-  // std::cin >> bkg;
-  auto PoisObj = new cvlPoisson(0.5, 0.5, .2);
-  auto bt = new Belt(PoisObj, 0.9, 0, 0.5);
-  auto itv = new Interval(PoisObj, 3.0, 0.9, 60);
-  double mu = 3;
-  // PoisObj->setBkgMean(2);
-  auto a = itv->roughMuScan(0);
-  std::cout << a.lower<< "\t" << a.upper << std::endl;
-  // std::cout << "---------" << std::endl;
-  // PoisObj->setBkgMean(2);
-  // a = itv->roughMuScan(0);
-  // std::cout << a.lower<< "\t" << a.upper << std::endl;
-  
-  FILE *fp = fopen("up_bkg.txt", "w");
-  for(double bkg=0.01;bkg<25;bkg+=0.005){
-    PoisObj->setBkgMean(bkg);
-    std::cout << PoisObj->getBkgMean() << std::endl;
-    // fprintf(fp, "%.4f\t%.4f\t%.4f\n", bkg, 
-    // itv->roughMuScan(0).upper,
-    // itv->roughMuScan(1).upper);
-    itv->roughMuScan(0).upper;
-    itv->roughMuScan(1).upper;
-  }
-  fclose(fp);
-  
-  return 0;
-}

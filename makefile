@@ -5,8 +5,10 @@
 
 #CPPFLAGS += -I/usr/local/include/root        #Change!
 CPPFLAGS += $(shell root-config --cflags)    #Change!
+CPPFLAGS += $(shell gsl-config --cflags)
 LDLIBS += -O3
 LDLIBS += $(shell root-config --glibs)
+LDLIBS += $(shell gsl-config --libs)
 
 #-lRooFit
 #LDFLAGS:= -L/usr/local/include/root         #Change!

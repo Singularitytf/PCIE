@@ -13,8 +13,8 @@ LDLIBS += $(shell root-config --glibs)
 LDFLAGS:= -L$(shell root-config --libdir)         #Change!
 SRCDIR += ./src
 
-SRCs		= ./src/debug.cc ./src/Belt.cc ./src/Poisson.cc  #Change!
-OBJs		= debug.o Belt.o Poisson.o
+SRCs		= ./src/debug.cc ./src/Interval.cc ./src/Belt.cc ./src/Poisson.cc  ./src/cvlPoisson.cc #Change!
+OBJs		= debug.o Interval.o Belt.o Poisson.o cvlPoisson.o
 # Short for Poisson Confident Interval Estimator.
 PROGRAM		= PCIE
 
@@ -25,7 +25,7 @@ all:	$(OBJs) $(PROGRAM)
 $(PROGRAM):	$(OBJs)
 	@echo "Linking $(PROGRAM) ..."
 	@echo "g++ $(OBJs) $(CPPFLAGS) $(LDLIBS) -o $(PROGRAM)"
-	@g++ $(OBJs) $(CPPFLAGS) $(LDLIBS) -o $(PROGRAM)
+	@g++ $(OBJs) $(CPPFLAGS) $(LDLIBS) -lgsl -o $(PROGRAM)
 	@echo "done"
 $(OBJs):        $(SRCs)
 	@echo "Compiling $(OBJs)...."

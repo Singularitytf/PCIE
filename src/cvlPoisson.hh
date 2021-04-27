@@ -1,3 +1,4 @@
+#pragma once
 #include "TMath.h"
 #include "TF1.h"
 #include <iostream>
@@ -13,7 +14,7 @@ private:
   double s_rate; // signal rate.
   double bkg_mean; //  mean_bkg rate.
   double bkg_sigma; // Gaussian uncertainty of bkg.
-  static double fcvlPoisson(double bkg, void *para);
+  static double fcvlPoisson(double bkg, void *fpara);
   // gsl_integration_workspace * w;
   //double muRoughScan();
   double result, error;

@@ -33,20 +33,34 @@ double cvlPoisson::getBkgSigma() {return this->bkg_sigma;}
 //....................................................................
 
 double cvlPoisson::pmf(int n0){
-  double paras[4] = {bkg_mean, bkg_sigma, s_rate, n0};
+  // std::cout << "cvl::pmf::bkg_mean: " << bkg_mean << std::endl;
+  double paras[4] = {bkg_mean, bkg_sigma, s_rate, (double)n0};
   gsl_integration_workspace * w
     = gsl_integration_workspace_alloc (1000);
   gsl_function F;
   F.function = this->fcvlPoisson;
   F.params = paras;
-  gsl_integration_qag (&F, 0, bkg_mean+5*bkg_sigma, esp, esp, 1000, 6,
+  gsl_integration_qag (&F, 0, bkg_mean+5*bkg_sigma, 0, esp, 1000, 1,
                         w, &result, &error); 
   gsl_integration_workspace_free(w);
-  // if ((bkg_mean - 5*bkg_sigma) <= 0)
-  //   return func.Integral(0, bkg_mean+5*bkg_sigma);
-  // else
-  //   return func.Integral(bkg_mean-5*bkg_sigma, bkg_mean+5*bkg_sigma);
   return result;
+  /*
+  if ((bkg_mean - 5*bkg_sigma) <= 0){
+    gsl_integration_qag (&F, 0, bkg_mean+5*bkg_sigma, esp, esp, 1000, 6,
+                        w, &result, &error); 
+    return result;
+  }
+  else{
+    gsl_integration_qag (&F, bkg_mean - 5*bkg_sigma, bkg_mean+5*bkg_sigma, esp, esp, 1000, 6,
+                        w, &result, &error); 
+    return result;
+  }
+  */
+//  printf("srate is: %f\n", s_rate);
+
+//  TF1 func = TF1("clvPois", fcvlPoisson, 0, 100, 4);
+//  func.SetParameters(bkg_mean, bkg_sigma, s_rate, n0);
+//   return func.Integral(0, bkg_mean+5*bkg_sigma);
 }
 
 //....................................................................
@@ -56,6 +70,8 @@ double cvlPoisson::fcvlPoisson(double bkg, void *fpara){
     double *para = (double*)fpara;
     return TMath::Poisson((int)para[3], para[2]+(bkg))
       *TMath::Gaus(bkg, para[0], para[1], kTRUE);
+    // return para[0]*bkg-para[1]*bkg*bkg;
+    // return 0.1;
 }
 
 double cvlPoisson::cdf(int n0){
@@ -68,30 +84,28 @@ double cvlPoisson::cdf(int n0){
 
 double cvlPoisson::findBestMu(int n0){
   // Get n0-bkg for init best mu;
-  // double BestMu =
-  //   ((n0 - this->bkg_mean)>0) ? (n0-this->bkg_mean) : 0;
-  // double mu_iter0 = 0;
-  // double mu_iter1 = 0;
+  double tmp_mu = s_rate;
+  double BestMu =
+    ((n0 - this->bkg_mean)>0) ? (n0-this->bkg_mean) : 0;
+  double mu_iter0 = 0;
+  double mu_iter1 = 0;
   // bool findBestMu = false;
   // cvlPoisson tmp = cvlPoisson(BestMu, this->bkg_mean, this->bkg_sigma);
-  // for (double i=0.;i<=BestMu+1;i+=0.001){
-  //   tmp.setSRate(i);
-  //   mu_iter0 = tmp.pmf(n0);
-  //   //cout << mu_iter << endl;
-  //   if (mu_iter0 > mu_iter1) mu_iter1 = mu_iter0;
-  //   else {
-  //     findBestMu = true;
-  //     BestMu = i;
-  //     break;
-  //   }
-  // }
-  // // 检查是否找到了Bestfit
-  // if (findBestMu) return BestMu;
-  // else{
-  //   std::cout << "Faild to find Best mu!!!" << std::endl;
-  //   return -1.0;
-  // }
-  return (n0-bkg_mean) > 0. ? (n0-bkg_mean) : 0.;
+  for (double i=BestMu;i<=BestMu+0.5;i+=0.001){
+    this->setSRate(i);
+    // printf("%f\n", i);
+    mu_iter0 = this->pmf(n0);
+    //cout << mu_iter << endl;
+    if (mu_iter0 > mu_iter1) mu_iter1 = mu_iter0;
+    else {
+      
+      BestMu = i;
+      // std::cout <<"best mu:"<< tmp_mu << std::endl;
+      break;
+    }
+  }
+  this->setSRate(tmp_mu);
+return BestMu;
 }
 
 //....................................................................

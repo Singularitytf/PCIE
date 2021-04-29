@@ -59,7 +59,7 @@ n0Limit Belt::findHInterval(double &mu){
   PoisObj->setSRate(mu);
   int temp = ((int)(PoisObj->getBkgMean()+PoisObj->getSRate()) - 10);
   temp > 0 ? n0_min = temp : n0_min = 0;
-  n0_max = (int)(PoisObj->getBkgMean()+PoisObj->getSRate()) + 10;
+  n0_max = (int)(PoisObj->getBkgMean()+PoisObj->getSRate()) + 13;
 
   // Scan for n0.
   for (int i=n0_min; i<=n0_max; i++){

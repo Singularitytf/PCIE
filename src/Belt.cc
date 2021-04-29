@@ -57,9 +57,10 @@ n0Limit Belt::findHInterval(double &mu){
 
   // Scan n0 located at the center of the belt;
   PoisObj->setSRate(mu);
-  int temp = ((int)(PoisObj->getBkgMean()+PoisObj->getSRate()) - 10);
+  int temp = ((int)(PoisObj->getBkgMean()+PoisObj->getSRate()) - 15);
   temp > 0 ? n0_min = temp : n0_min = 0;
-  n0_max = (int)(PoisObj->getBkgMean()+PoisObj->getSRate()) + 13;
+  n0_max = (int)(PoisObj->getBkgMean()+PoisObj->getSRate()) + 15;
+  // printf("n0min: %d\tn0max:: %d\n", n0_min, n0_max);
 
   // Scan for n0.
   for (int i=n0_min; i<=n0_max; i++){
@@ -70,8 +71,10 @@ n0Limit Belt::findHInterval(double &mu){
 
   for (size_t i=0;i<strData.size(); i++){
     total_porb += strData[i].prob;
+    // printf("total prob is:%.4f\n", total_porb);
     if (total_porb >= this->cfdent_level){
       max_iter_idx = i;
+      // printf("max iter is:%d\n", max_iter_idx);
       break;
     }
   }
@@ -93,9 +96,9 @@ void Belt::printConstruction(double &mu){
   int hInterval[2];
   // Scan n0 located at the center of the belt;
   PoisObj->setSRate(mu);
-  int temp = ((int)(PoisObj->getBkgMean()+PoisObj->getSRate()) - 10);
+  int temp = ((int)(PoisObj->getBkgMean()+PoisObj->getSRate()) - 13);
   temp > 0 ? n0_min = temp : n0_min = 0;
-  n0_max = (int)(PoisObj->getBkgMean()+PoisObj->getSRate()) + 10;
+  n0_max = (int)(PoisObj->getBkgMean()+PoisObj->getSRate()) + 13;
   // Scan for n0.
   for (int i=n0_min; i<=n0_max; i++){
     strData.push_back(fillStructure(i));

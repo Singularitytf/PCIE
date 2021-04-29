@@ -34,14 +34,14 @@ roughMu Interval::roughMuScan(int n0){
   for (double i=lower_start_p; i>=0; i-=fesp){
     // printf("lower scan mu = %f", i);
     ntmp = belt->findHInterval(i).upper;
-    // std::cout << i << "\t low" << ntmp << std::endl;
+    // std::cout << i << "\tlow\t" << ntmp << std::endl;
     if (ntmp == n0-1){
       scanRst.lower = i;
       break;
     }
   }
 
-  for (double i=upper_start_p; i<=upper_start_p+10; i+=fesp){
+  for (double i=upper_start_p; i<=upper_start_p+50; i+=fesp){
     // printf("upper scan mu = %f", i);
     ntmp = belt->findHInterval(i).lower;
     double bkg = PoisObj->getBkgMean();
@@ -68,15 +68,15 @@ roughMu Interval::findMuInterval(int fn0){
   roughMu exacMu;
   double low_region_1, low_region_2, up_region_1, up_region_2;
   double mu_tmp;
-  low_region_1 = roughmu.lower+0.5;
-  low_region_2 = ((roughmu.lower-0.1)>0)?(roughmu.lower-0.1):0;
+  low_region_2 = roughmu.lower+0.5;
+  low_region_1 = ((roughmu.lower-0.1)>0)?(roughmu.lower-0.1):0;
   up_region_1 = ((roughmu.upper-0.5)>0)?(roughmu.upper-0.5):0;
   up_region_2 = roughmu.upper+1.2;
-  uint l_iter = (uint) (low_region_2-low_region_1)/esp;
-  uint u_iter = (uint) (up_region_2-up_region_1)/esp;
+  uint l_iter = (uint) ((low_region_2-low_region_1)/esp);
+  uint u_iter = (uint) ((up_region_2-up_region_1)/esp);
   // scan upper limit
 
-  // printf("low scan region: %f\t%f\t\n", low_region_1, low_region_2);
+  // printf("low scan region: %f\t%f\t%d\n", low_region_1, low_region_2, (uint)((low_region_2-low_region_1)/esp));
   // printf("up  scan region: %f\t%f\t\n", up_region_1, up_region_2);
   // printf("uiter: %f\n", esp);
   for(int i=0; i<=u_iter; i++){
@@ -95,6 +95,7 @@ roughMu Interval::findMuInterval(int fn0){
     mu_tmp = low_region_2-i*esp;
     ntmp = belt->findHInterval(mu_tmp).upper;
     // printf("%.4f\t%d\n", i, ntmp);
+    // printf("fine lower scan, mu:%f, n0:%d\n", mu_tmp, ntmp);
     if (ntmp == fn0){
        exacMu.lower = mu_tmp;
       //  printf("%.4f\t%d\n", exacMu.lower, ntmp);

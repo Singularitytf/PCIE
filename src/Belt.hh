@@ -23,6 +23,7 @@ struct roughMu{
 
 class Belt{
 private:
+  Poisson *m_PoisObj = NULL;
   cvlPoisson *PoisObj = NULL;// = NULL;
   double cfdent_level;
   double mu_scan_min;
@@ -42,9 +43,14 @@ public:
   Belt(cvlPoisson *fPoisObj, double fcfdent_level,
        double fmu_scan_min, double fmu_scan_max,
        double fmu_scan_esp=0.05);
+  Belt(Poisson *fPoisObj, double fcfdent_level,
+       double fmu_scan_min, double fmu_scan_max,
+       double fmu_scan_esp=0.05);
   ~Belt();
   n0Limit findHInterval(double &mu);
   void printConstruction(double &mu);
   std::vector<n0Limit> constructBelt();
   void outPutBelt(const std::string filename = "beltPlot.txt");
+  void setCL(double &fcl);
+  double getCL();
 };

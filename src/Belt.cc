@@ -41,7 +41,7 @@ constructData Belt::fillStructure(int &fn0){
   fstrData.prob_best = cvlPoisson(PoisObj->findBestMu(fn0),
                                PoisObj->getBkgMean(),
                                PoisObj->getBkgSigma()).pmf(fn0);
-  // std::cout << PoisObj->findBestMu(fn0) << std::endl;
+  // std::cout << fn0 << "\t" << PoisObj->getSRate() << "\t" <<PoisObj->findBestMu(fn0) << std::endl;
   fstrData.rate = fstrData.prob/fstrData.prob_best;
   return fstrData;
 }
@@ -144,6 +144,9 @@ void Belt::outPutBelt(const std::string filename){
 
 
 //....................................................................
+
+void Belt::setCL(double &fcl){cfdent_level = fcl;}
+double Belt::getCL(){return cfdent_level;}
 
 
 //....................................................................

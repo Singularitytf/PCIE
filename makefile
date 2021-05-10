@@ -15,8 +15,10 @@ LDLIBS += $(shell gsl-config --libs)
 LDFLAGS:= -L$(shell root-config --libdir)         #Change!
 SRCDIR += ./src
 
-SRCs		= ./src/debug.cc ./src/Interval.cc ./src/Belt.cc ./src/Poisson.cc  ./src/cvlPoisson.cc #Change!
-OBJs		= debug.o Interval.o Belt.o Poisson.o cvlPoisson.o
+# Debug		= ./src/debug.cc ./src/Interval.cc ./src/Belt.cc ./src/Poisson.cc  ./src/cvlPoisson.cc ./src/rwPoisson.cc
+# Debug_o = debug.o Interval.o Belt.o Poisson.o cvlPoisson.o rwPoisson.o
+SRCs		= ./src/debug.cc ./src/Interval.cc ./src/Belt.cc ./src/Poisson.cc  ./src/cvlPoisson.cc ./src/rwPoisson.cc#Change!
+OBJs		= debug.o Interval.o Belt.o Poisson.o cvlPoisson.o rwPoisson.o
 # Short for Poisson Confident Interval Estimator.
 PROGRAM		= PCIE
 
@@ -34,6 +36,15 @@ $(OBJs):        $(SRCs)
 	@echo "g++ -c $(CPPFLAGS) $(SRCs)"
 	@g++ -c $(CPPFLAGS) $(SRCs)
 
+# debug:	$(Debug_o)
+# 	@echo "Linking $(PROGRAM) ..."
+# 	@echo "g++ $(Debug) $(CPPFLAGS) $(LDLIBS) -o $(PROGRAM)"
+# 	@g++ $(Debug_o) $(CPPFLAGS) $(LDLIBS) -lgsl -o $(PROGRAM)
+# 	@echo "done"
+# $(Debug_o):        $(SRCs)
+# 	@echo "Compiling $(Debug_o)...."
+# 	@echo "g++ -c $(CPPFLAGS) $(Debug)"
+# 	@g++ -c $(CPPFLAGS) $(Debug)
 
 #clean: 	$(PROGRAM)
 #	@echo "rm -f $(OBJ1) $(OBJ2) core"
